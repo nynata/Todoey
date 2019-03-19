@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ToDoListViewController.swift
 //  Todoey
 //
 //  Created by Nataly Zeldin on 3/15/19.
@@ -12,7 +12,7 @@ import UIKit
 
 class ToDoListViewController: UITableViewController {
     
-    let itemArray = ["Find Mike","Buy Eggos","Destroy Demogron"]
+    var itemArray = ["Find Mike","Buy Eggos","Destroy Demogron"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +51,43 @@ class ToDoListViewController: UITableViewController {
         
         tableView.deselectRow(at: indexPath, animated: true) // goes back to original look after item is selected
     }
+    
+    
+    
+    //MARK - Add New Items
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textField = UITextField() // variable will be accessible on both the action and alert functions
+        
+        //create ui modal to add alert item when the button is pressed
+        
+        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+        
+        //create action view controller to add the item
+        
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            
+            //what will happen once the user clicks the add item button on our ui alert
+            
+            self.itemArray.append(textField.text!)
+            
+            self.tableView.reloadData() // reload data using the item array which now has the new item
+        }
+        
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Create new item"
+            textField = alertTextField // textField has a narrower scope and only exists in this closure
+            
+            
+        }
+            alert.addAction(action)
+            
+            self.present(alert, animated: true, completion: nil)
+            
+            
+        }
+    
+    
     
     
 }
