@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         print("didFinishLaunchingWithOptions")
         
-        print(NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).last! as String) // this will prove that our data has been saved in defautls
+
         
         return true
     }

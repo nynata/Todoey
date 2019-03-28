@@ -13,28 +13,18 @@ import UIKit
 class ToDoListViewController: UITableViewController {
     
     var itemArray = [Item]()
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
-    let defaults = UserDefaults.standard //store user defaults persistently here
+//    let defaults = UserDefaults.standard //store user defaults persistently here
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let newItem = Item()
-        newItem.title = "Find Mike"
-        itemArray.append(newItem)
         
-        let newItem2 = Item()
-        newItem2.title = "Buy Eggos"
-        itemArray.append(newItem2)
+        print(dataFilePath)
         
-        let newItem3 = Item()
-        newItem3.title = "Destroy Demogron"
-        itemArray.append(newItem3)
-        
-        
-        if let items = defaults.array(forKey: "ToDoListArray") as? [Item] {
-          itemArray = items
-        } // set array to saved defaults
+        loadItems()
+
     
     }
     
@@ -50,9 +40,9 @@ class ToDoListViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath) //create dequeued reusable cell
         
-        let item = itemArray[indexPath.row] // this is the current item for the cell, shorthand to make code less wordy
+        let item = itemArray[indexPath.row]
         
-        cell.textLabel?.text = item.title // set cell's text to row item from array
+        cell.textLabel?.text = item.title
         
         //Ternary Operator ==>
         // value = condition ? valueIfTrue : valueIfFalse ... fewer lines of code than if.. then!
@@ -65,11 +55,12 @@ class ToDoListViewController: UITableViewController {
 
     //MARK - TableView Delegate Methods - get fired whenever we click on any cell in the table view
     
-    //detect which row was selected
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //print(itemArray[indexPath.row])
         
-       itemArray[indexPath.row].done = !itemArray[indexPath.row].done // set done property to opposite of what it is
+        itemArray[indexPath.row].done = !itemArray[indexPath.row].done // set done property to opposite of what it is
+    
+        saveItems()
         
         
         //if row has a checkmark, remove it. if it doesn't, add a checkmark.
@@ -106,9 +97,9 @@ class ToDoListViewController: UITableViewController {
             newItem.title = textField.text!
             self.itemArray.append(newItem)
             
-            self.defaults.set(self.itemArray, forKey: "TodoListArray") // add the array to persistent defaults
             
-            self.tableView.reloadData() // reload data using the item array which now has the new item
+            self.saveItems()
+            
         }
         
         alert.addTextField { (alertTextField) in
@@ -123,6 +114,35 @@ class ToDoListViewController: UITableViewController {
             
             
         }
+    
+    //MARK - Model Manipulation Methods
+    
+    func saveItems() {
+        
+        let encoder = PropertyListEncoder()
+        
+        do {
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print ("Error encoding item array, \(error)")
+        }
+        
+        tableView.reloadData()                   // reload data using the item array which now has the new item
+        
+    }
+    
+    
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do{
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Decoding item array error, /(error)")
+            }
+        }
+    }
     
     
     
